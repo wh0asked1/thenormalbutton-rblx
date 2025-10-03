@@ -5,11 +5,11 @@ local jesus = Instance.new("Part", workspace)
 
 	jesus.Name = "jesusWalk"
 	jesus.Size = Vector3.new(2047, 0.009, 2019)
-	jesus.Position = Vector3.new(51.356, -69.32, -383.5)
+	jesus.Position = Vector3.new(0, 0, 0)
 	jesus.CanCollide = false
 	jesus.Anchored = true
 	jesus.Transparency = 1
-Tab:CreateToggle("Toggle", function(toggleState)
+Tab:CreateToggle("Anti Void", function(toggleState)
 if toggleState then
     jesus.CanCollide = true
 	jesus.Anchored = true
