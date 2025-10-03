@@ -1,0 +1,8 @@
+local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
+local Window = Library:NewWindow("The Normal Button")
+local Tab = Window:NewSection("Main")
+Tab:CreateToggle("Toggle", function(value)
+
+print(value)
+
+end)
