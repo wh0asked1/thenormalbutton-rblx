@@ -9,6 +9,9 @@ local jesus = Instance.new("Part", workspace)
 	jesus.CanCollide = false
 	jesus.Anchored = true
 	jesus.Transparency = 1
+Tab:CreateButton("Button", function()
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.Coin.CFrame + Vector3.new(0, 3, 0)
+end)
 Tab:CreateToggle("Anti Void", function(toggleState)
 if toggleState then
     jesus.CanCollide = true
