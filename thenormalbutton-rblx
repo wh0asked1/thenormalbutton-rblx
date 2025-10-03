@@ -10,7 +10,10 @@ local jesus = Instance.new("Part", workspace)
 	jesus.Anchored = true
 	jesus.Transparency = 1
 Tab:CreateButton("Get Coins", function()
-firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Coin, 0) firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, workspace.Coin, 1)
+-- One-liner that runs on execute
+local char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+for _, obj in pairs(workspace:GetDescendants()) do if obj.Name == "Coin" then local touch = obj:FindFirstChildOfClass("TouchTransmitter") or obj:FindFirstChild("TouchInterest") if touch then firetouchinterest(hrp, obj, 0) firetouchinterest(hrp, obj, 1) end end end
 Tab:CreateToggle("Anti Void", function(toggleState)
 if toggleState then
     jesus.CanCollide = true
