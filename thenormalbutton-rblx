@@ -1,6 +1,5 @@
 local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
 local Window = Library:NewWindow("The Normal Button")
-local Tab = Window:NewSection("Main")
 local jesus = Instance.new("Part", workspace)
 
 	jesus.Name = "jesusWalk"
@@ -9,11 +8,15 @@ local jesus = Instance.new("Part", workspace)
 	jesus.CanCollide = false
 	jesus.Anchored = true
 	jesus.Transparency = 1
-Tab:CreateButton("Get All Coins", function()
--- ALL THE COINS ARE TOUCHINTEREST WHAT THE Coins
+local Tab = Window:NewSection("Main")
+
+Tab:CreateButton("Get ALL Coins", function()
+-- WOW WOW SIMPLE AS THAT
 local char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 for _, obj in pairs(workspace:GetDescendants()) do if obj.Name == "Coin" then local touch = obj:FindFirstChildOfClass("TouchTransmitter") or obj:FindFirstChild("TouchInterest") if touch then firetouchinterest(hrp, obj, 0) firetouchinterest(hrp, obj, 1) end end end
+print("ALL OF THE COINS CAN BE COLLECT WITH TOUCHINTEREST LIKE THE FUCK")
+end)
 Tab:CreateToggle("Anti Void", function(toggleState)
 if toggleState then
     jesus.CanCollide = true
