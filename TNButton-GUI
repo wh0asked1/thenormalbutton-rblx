@@ -126,6 +126,544 @@ ButtonToggleButton.TextSize = 12
 ButtonToggleButton.Font = Enum.Font.GothamBold
 ButtonToggleButton.Parent = MainFrame
 
+-- Auto Safezone Section
+local TeleportStatusLabel = Instance.new("TextLabel")
+TeleportStatusLabel.Name = "TeleportStatusLabel"
+TeleportStatusLabel.Size = UDim2.new(1, -20, 0, 20)
+TeleportStatusLabel.Position = UDim2.new(0, 10, 0, 95)
+TeleportStatusLabel.BackgroundTransparency = 1
+TeleportStatusLabel.Text = "Auto Safezone"
+TeleportStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+TeleportStatusLabel.TextSize = 12
+TeleportStatusLabel.Font = Enum.Font.Gotham
+TeleportStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+TeleportStatusLabel.Parent = MainFrame
+
+local TeleportToggleButton = Instance.new("TextButton")
+TeleportToggleButton.Name = "TeleportToggleButton"
+TeleportToggleButton.Size = UDim2.new(1, -20, 0, 30)
+TeleportToggleButton.Position = UDim2.new(0, 10, 0, 120)
+TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(150, 60, 200)
+TeleportToggleButton.Text = "START TELEPORTING"
+TeleportToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TeleportToggleButton.TextSize = 12
+TeleportToggleButton.Font = Enum.Font.GothamBold
+TeleportToggleButton.Parent = MainFrame
+
+-- Credit Label
+local CreditLabel = Instance.new("TextLabel")
+CreditLabel.Name = "CreditLabel"
+CreditLabel.Size = UDim2.new(1, -20, 0, 15)
+CreditLabel.Position = UDim2.new(0, 10, 0, 155)
+CreditLabel.BackgroundTransparency = 1
+CreditLabel.Text = "Made by @wh0asked1"
+CreditLabel.TextColor3 = Color3.fromRGB(150, 150, 200)
+CreditLabel.TextSize = 10
+CreditLabel.Font = Enum.Font.Gotham
+CreditLabel.TextXAlignment = Enum.TextXAlignment.Center
+CreditLabel.Parent = MainFrame
+
+-- YouTube Link Label
+local YouTubeLabel = Instance.new("TextLabel")
+YouTubeLabel.Name = "YouTubeLabel"
+YouTubeLabel.Size = UDim2.new(1, -20, 0, 15)
+YouTubeLabel.Position = UDim2.new(0, 10, 0, 170)
+YouTubeLabel.BackgroundTransparency = 1
+YouTubeLabel.Text = "youtube.com/@wh0asked1"
+YouTubeLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+YouTubeLabel.TextSize = 10
+YouTubeLabel.Font = Enum.Font.Gotham
+YouTubeLabel.TextXAlignment = Enum.TextXAlignment.Center
+YouTubeLabel.Parent = MainFrame
+
+-- Button corner rounding
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 6)
+ButtonCorner.Parent = CoinToggleButton
+ButtonCorner:Clone().Parent = ButtonToggleButton
+ButtonCorner:Clone().Parent = TeleportToggleButton
+ButtonCorner:Clone().Parent = MinimizeButton
+
+-- Store references to all content elements for easy hiding/showing
+local contentElements = {
+    CoinStatusLabel,
+    CoinToggleButton,
+    ButtonStatusLabel,
+    ButtonToggleButton,
+    TeleportStatusLabel,
+    TeleportToggleButton,
+    CreditLabel,
+    YouTubeLabel
+}
+
+-- Minimize function
+local function toggleMinimize()
+    minimized = not minimized
+    
+    if minimized then
+        -- Collapse to just title bar
+        MainFrame.Size = UDim2.new(0, 240, 0, 30)
+        MinimizeButton.Text = "+"
+        
+        -- Hide all content elements
+        for _, element in pairs(contentElements) do
+            element.Visible = false
+        end
+    else
+        -- Expand to full size
+        MainFrame.Size = UDim2.new(0, 240, 0, 190)
+        MinimizeButton.Text = "-"
+        
+        -- Show all content elements
+        for _, element in pairs(contentElements) do
+            element.Visible = true
+        end
+    end
+end
+
+-- SIMPLE DRAGGING SYSTEM
+local UserInputService = game:GetService("UserInputService")
+local dragging = false
+local dragStart = nil
+local startPosition = nil
+
+-- Function to start dragging
+local function startDrag()
+    dragging = true
+    dragStart = UserInputService:GetMouseLocation()
+    startPosition = MainFrame.Position
+end
+
+-- Function to stop dragging
+local function stopDrag()
+    dragging = false
+    dragStart = nil
+    startPosition = nil
+end
+
+-- Function to update drag position
+local function updateDrag()
+    if not dragging then return end
+    
+    local currentMouse = UserInputService:GetMouseLocation()
+    local delta = Vector2.new(
+        currentMouse.X - dragStart.X,
+        currentMouse.Y - dragStart.Y
+    )
+    
+    MainFrame.Position = UDim2.new(
+        startPosition.X.Scale,
+        startPosition.X.Offset + delta.X,
+        startPosition.Y.Scale,
+        startPosition.Y.Offset + delta.Y
+    )
+end
+
+-- Connect mouse events to TitleLabel
+TitleLabel.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        startDrag()
+        
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                stopDrag()
+                connection:Disconnect()
+            end
+        end)
+    end
+end)
+
+-- Connect touch events to TitleLabel
+TitleLabel.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        startDrag()
+        
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                stopDrag()
+                connection:Disconnect()
+            end
+        end)
+    end
+end)
+
+-- Update position while dragging
+game:GetService("RunService").Heartbeat:Connect(function()
+    if dragging then
+        updateDrag()
+    end
+end)
+
+-- Coin Collection Functions
+local function collectCoins()
+    if not collecting then return end
+    
+    local character = Player.Character
+    if not character then return end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if not collecting then break end
+        if obj.Name == "Coin" then
+            local touch = obj:FindFirstChildOfClass("TouchTransmitter") or obj:FindFirstChild("TouchInterest")
+            if touch then
+                firetouchinterest(hrp, obj, 0)
+                firetouchinterest(h(hrp, obj, 1)
+            end
+        end
+    end
+end
+
+local function startCoinCollecting()
+    if coinConnection then coinConnection:Disconnect() end
+    
+    coinConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        collectCoins()
+    end)
+end
+
+local function stopCoinCollecting()
+    collecting = false
+    if coinConnection then
+        coinConnection:Disconnect()
+        coinConnection = nil
+    end
+end
+
+-- Button Click Functions
+local function findButton()
+    local success, result = pcall(function()
+        return workspace:FindFirstChild("island") and 
+               workspace.island:FindFirstChild("button") and 
+               workspace.island.button:FindFirstChild("real")
+    end)
+    
+    if success and result then
+        local button = workspace.island.button.real
+        local clickDetector = button:FindFirstChild("ClickDetector")
+        return clickDetector
+    end
+    return nil
+end
+
+local function clickButton()
+    local clickDetector = findButton()
+    
+    if clickDetector then
+        pcall(function()
+            fireclickdetector(clickDetector)
+        end)
+        return true
+    else
+        return false
+    end
+end
+
+local function startButtonClicking()
+    if clickConnection then clickConnection:Disconnect() end
+    
+    clickConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if clicking then
+            local success = clickButton()
+            if not success then
+                ButtonStatusLabel.Text = "Button: ❌ Not Found"
+                ButtonStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            end
+        end
+    end)
+end
+
+local function stopButtonClicking()
+    clicking = false
+    if clickConnection then
+        clickConnection:Disconnect()
+        clickConnection = nil
+    end
+end
+
+-- Teleport Functions
+local function teleportToJesus()
+    local character = Player.Character
+    if not character then return false end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+    
+    -- Check if platform exists, create if not
+    local platform = workspace:FindFirstChild("jesusWalk")
+    if not platform then
+        platform = createJesusPlatform()
+    end
+    
+    -- Teleport to platform (slightly above to avoid falling through)
+    hrp.CFrame = CFrame.new(10000, 5, 0)
+    return true
+end
+
+local function startTeleporting()
+    if teleportConnection then teleportConnection:Disconnect() end
+    
+    teleportConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if teleporting then
+            -- Only teleport every 3 seconds
+            if not teleporting then return end
+            
+            local success = teleportToJesus()
+            if success then
+                TeleportStatusLabel.Text = "Auto Safezone"
+                TeleportStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                
+                -- Wait 3 seconds before next teleport
+                wait(3)
+                
+                if teleporting then
+                    TeleportStatusLabel.Text = "Auto Safezone"
+                    TeleportStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                end
+            else
+                TeleportStatusLabel.Text = "No Character"
+                TeleportStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            end
+        end
+    end)
+end
+
+local function stopTeleporting()
+    teleporting = false
+    if teleportConnection then
+        teleportConnection:Disconnect()
+        teleportConnection = nil
+    end
+end
+
+-- Handle character respawns
+Player.CharacterAdded:Connect(function()
+    if collecting then
+        wait(2)
+        if not coinConnection then
+            startCoinCollecting()
+        end
+    end
+    if clicking then
+        wait(2)
+        if not clickConnection then
+            startButtonClicking()
+        end
+    end
+    if teleporting then
+        wait(2)
+        teleportToJesus()
+    end
+end)
+
+-- Individual Toggle Functions
+local function toggleCoinCollect()
+    collecting = not collecting
+    
+    if collecting then
+        CoinStatusLabel.Text = "Auto Collect Coins"
+        CoinStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        CoinToggleButton.Text = "Enable"
+        CoinToggleButton.BackgroundColor3 = Color3.fromRGB(60, 200, 60)
+        startCoinCollecting()
+    else
+        CoinStatusLabel.Text = "Auto Collect Coins"
+        CoinStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        CoinToggleButton.Text = "Disable"
+        CoinToggleButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+        stopCoinCollecting()
+    end
+end
+
+local function toggleButtonClick()
+    clicking = not clicking
+    
+    if clicking then
+        ButtonStatusLabel.Text = "Auto Press Button"
+        ButtonStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        ButtonToggleButton.Text = "Enable"
+        ButtonToggleButton.BackgroundColor3 = Color3.fromRGB(90, 150, 255)
+        startButtonClicking()
+    else
+        ButtonStatusLabel.Text = "Auto Press Button"
+        ButtonStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        ButtonToggleButton.Text = "Disable"
+        ButtonToggleButton.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
+        stopButtonClicking()
+    end
+end
+
+local function toggleTeleport()
+    teleporting = not teleporting
+    
+    if teleporting then
+        TeleportStatusLabel.Text = "Jesus Teleporter"
+        TeleportStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        TeleportToggleButton.Text = "STOP TELEPORTING"
+        TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(200, 100, 255)
+        
+        -- Create platform if it doesn't exist
+        if not workspace:FindFirstChild("jesusWalk") then
+            createJesusPlatform()
+        end
+        
+        -- Teleport immediately when starting
+        teleportToJesus()
+        startTeleporting()
+    else
+        TeleportStatusLabel.Text = "Jesus Teleporter"
+        TeleportStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        TeleportToggleButton.Text = "START TELEPORTING"
+        TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(150, 60, 200)
+        stopTeleporting()
+    end
+end
+
+-- Connect buttons
+CoinToggleButton.MouseButton1Click:Connect(toggleCoinCollect)
+ButtonToggleButton.MouseButton1Click:Connect(toggleButtonClick)
+TeleportToggleButton.MouseButton1Click:Connect(toggleTeleport)
+MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
+
+-- Close button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Position = UDim2.new(1, -25, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 12
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = TitleLabel
+
+CloseButton.MouseButton1Click:Connect(function()
+    stopCoinCollecting()
+    stopButtonClicking()
+    stopTeleporting()
+    ScreenGui:Destroy()
+end)
+
+-- Add smooth animations
+local function setupButtonHover(button)
+    button.MouseEnter:Connect(function()
+        game:GetService("TweenService"):Create(button, TweenInfo.new(0.1), {BackgroundTransparency = 0.2}):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        game:GetService("TweenService"):Create(button, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
+    end)
+end
+
+setupButtonHover(CoinToggleButton)
+setupButtonHover(ButtonToggleButton)
+setupButtonHover(TeleportToggleButton)
+setupButtonHover(MinimizeButton)
+setupButtonHover(CloseButton)
+
+-- Create the platform when script starts
+createJesusPlatform()
+
+print("Combined Collector GUI Loaded!")
+print("Features: Coin Collector + Button Clicker + Jesus Teleporter")
+print("Jesus platform created at position (10000, 0, 0)")
+print("Use '-' button to minimize the GUI")
+print("Drag the title bar to move the window!")MainFrame.BackgroundTransparency = 0.1
+MainFrame.Parent = ScreenGui
+
+-- Add corner rounding
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- Add shadow effect
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(80, 80, 80)
+UIStroke.Thickness = 2
+UIStroke.Parent = MainFrame
+
+-- Title Label
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Size = UDim2.new(1, 0, 0, 30)
+TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+TitleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TitleLabel.BackgroundTransparency = 0
+TitleLabel.Text = "The Normal Button"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 16
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Parent = MainFrame
+
+-- Corner for title
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 8)
+TitleCorner.Parent = TitleLabel
+
+-- Minimize Button
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Size = UDim2.new(0, 20, 0, 20)
+MinimizeButton.Position = UDim2.new(1, -50, 0, 5)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeButton.TextSize = 16
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Parent = TitleLabel
+
+-- Coin Collector Section
+local CoinStatusLabel = Instance.new("TextLabel")
+CoinStatusLabel.Name = "CoinStatusLabel"
+CoinStatusLabel.Size = UDim2.new(0.45, -10, 0, 20)
+CoinStatusLabel.Position = UDim2.new(0, 10, 0, 35)
+CoinStatusLabel.BackgroundTransparency = 1
+CoinStatusLabel.Text = "Auto Collect Coins"
+CoinStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+CoinStatusLabel.TextSize = 12
+CoinStatusLabel.Font = Enum.Font.Gotham
+CoinStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+CoinStatusLabel.Parent = MainFrame
+
+local CoinToggleButton = Instance.new("TextButton")
+CoinToggleButton.Name = "CoinToggleButton"
+CoinToggleButton.Size = UDim2.new(0.45, -10, 0, 30)
+CoinToggleButton.Position = UDim2.new(0, 10, 0, 60)
+CoinToggleButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+CoinToggleButton.Text = "Disable"
+CoinToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CoinToggleButton.TextSize = 12
+CoinToggleButton.Font = Enum.Font.GothamBold
+CoinToggleButton.Parent = MainFrame
+
+-- Button Clicker Section
+local ButtonStatusLabel = Instance.new("TextLabel")
+ButtonStatusLabel.Name = "ButtonStatusLabel"
+ButtonStatusLabel.Size = UDim2.new(0.45, -10, 0, 20)
+ButtonStatusLabel.Position = UDim2.new(0.55, 0, 0, 35)
+ButtonStatusLabel.BackgroundTransparency = 1
+ButtonStatusLabel.Text = "Auto Press Button"
+ButtonStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+ButtonStatusLabel.TextSize = 12
+ButtonStatusLabel.Font = Enum.Font.Gotham
+ButtonStatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+ButtonStatusLabel.Parent = MainFrame
+
+local ButtonToggleButton = Instance.new("TextButton")
+ButtonToggleButton.Name = "ButtonToggleButton"
+ButtonToggleButton.Size = UDim2.new(0.45, -10, 0, 30)
+ButtonToggleButton.Position = UDim2.new(0.55, 0, 0, 60)
+ButtonToggleButton.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
+ButtonToggleButton.Text = "Disable"
+ButtonToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ButtonToggleButton.TextSize = 12
+ButtonToggleButton.Font = Enum.Font.GothamBold
+ButtonToggleButton.Parent = MainFrame
+
 -- Jesus Teleporter Section
 local TeleportStatusLabel = Instance.new("TextLabel")
 TeleportStatusLabel.Name = "TeleportStatusLabel"
