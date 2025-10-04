@@ -1,31 +1,30 @@
 local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
 local Window = Library:NewWindow("The Normal Button")
-local jesus = Instance.new("Part", workspace)
-
-	jesus.Name = "jesusWalk"
-	jesus.Size = Vector3.new(2047, 0.009, 2019)
-	jesus.Position = Vector3.new(0, 0, 0)
-	jesus.CanCollide = false
-	jesus.Anchored = true
-	jesus.Transparency = 1
 local Tab = Window:NewSection("Main")
 
-Tab:CreateButton("Get ALL Coins", function()
--- WOW WOW SIMPLE AS THAT
-local char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
-for _, obj in pairs(workspace:GetDescendants()) do if obj.Name == "Coin" then local touch = obj:FindFirstChildOfClass("TouchTransmitter") or obj:FindFirstChild("TouchInterest") if touch then firetouchinterest(hrp, obj, 0) firetouchinterest(hrp, obj, 1) end end end
-print("ALL OF THE COINS CAN BE COLLECT WITH TOUCHINTEREST LIKE THE FUCK")
-end)
-Tab:CreateToggle("Anti Void", function(toggleState)
-if toggleState then
-    jesus.CanCollide = true
-	jesus.Anchored = true
-	jesus.Transparency = 0.5
-    else
-    jesus.CanCollide = false
-	jesus.Anchored = true
-	jesus.Transparency = 1
-    end
-end)
+Tab:CreateButton("Autofarm TNB", function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/wh0asked1/thenormalbutton-rblx/refs/heads/main/TNButton-GUI",true))()
 
+end)
+local Tab = Window:NewSection("Minigame BETA")
+Tab:CreateButton("AW Press The Button!", function()
+-- Alternative: Fire all at once without delays
+local buttonsFolder = workspace["Press the Buttons!"]
+
+for _, child in ipairs(buttonsFolder:GetChildren()) do
+    local real = child:FindFirstChild("real")
+    if real then
+        local clickDetector = real:FindFirstChildOfClass("ClickDetector")
+        if clickDetector then
+            fireclickdetector(clickDetector)
+        end
+    end
+end
+
+print("Fired all ClickDetectors!")
+
+end)
+Tab:CreateButton("AW Obby Race", function()
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = workspace["\226\154\148\239\184\143 Obby Race"].win.CFrame
+
+end)
