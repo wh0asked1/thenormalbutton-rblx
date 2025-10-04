@@ -506,6 +506,271 @@ local function toggleTeleport()
         TeleportToggleButton.Text = "STOP TELEPORTING"
         TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(200, 100, 255)
         
+        if not workspace:FindFirstChild("jesusWalk") then
+            createJesusPlatform()
+        end
+        
+        -- Teleport immediately when starting
+        teleportToJesus()
+        startTeleporting()
+    else
+        TeleportStatusLabel.Text = "Jesus Teleporter"
+        TeleportStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        TeleportToggleButton.Text = "START TELEPORTING"
+        TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(150, 60, 200)
+        stopTeleporting()
+    end
+end
+
+CoinToggleButton.MouseButton1Click:Connect(toggleCoinCollect)
+ButtonToggleButton.MouseButton1Click:Connect(toggleButtonClick)
+TeleportToggleButton.MouseButton1Click:Connect(toggleTeleport)
+MinimizeButton.MouseButton1Click:Connect(toggleMinimize)
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 20, 0, 20)
+CloseButton.Position = UDim2.new(1, -25, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 12
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Parent = TitleLabel
+
+CloseButton.MouseButton1Click:Connect(function()
+    stopCoinCollecting()
+    stopButtonClicking()
+    stopTeleporting()
+    ScreenGui:Destroy()
+end)
+
+-- Add smooth animations
+local function setupButtonHover(button)
+    button.MouseEnter:Connect(function()
+        game:GetService("TweenService"):Create(button, TweenInfo.new(0.1), {BackgroundTransparency = 0.2}):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        game:GetService("TweenService"):Create(button, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
+    end)
+end
+
+setupButtonHover(CoinToggleButton)
+setupButtonHover(ButtonToggleButton)
+setupButtonHover(TeleportToggleButton)
+setupButtonHover(MinimizeButton)
+setupButtonHover(CloseButton)
+
+print("Combined Collector GUI Loaded!")
+print("Features: Coin Collector + Button Clicker + Jesus Teleporter")
+print("Jesus platform created at position (10000, 0, 0)")
+print("Use '-' button to minimize the GUI")
+print("Drag the title bar to move the window!")not character then return end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if not collecting then break end
+        if obj.Name == "Coin" then
+            local touch = obj:FindFirstChildOfClass("TouchTransmitter") or obj:FindFirstChild("TouchInterest")
+            if touch then
+                firetouchinterest(hrp, obj, 0)
+                firetouchinterest(h(hrp, obj, 1)
+            end
+        end
+    end
+end
+
+local function startCoinCollecting()
+    if coinConnection then coinConnection:Disconnect() end
+    
+    coinConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        collectCoins()
+    end)
+end
+
+local function stopCoinCollecting()
+    collecting = false
+    if coinConnection then
+        coinConnection:Disconnect()
+        coinConnection = nil
+    end
+end
+
+-- Button Click Functions
+local function findButton()
+    local success, result = pcall(function()
+        return workspace:FindFirstChild("island") and 
+               workspace.island:FindFirstChild("button") and 
+               workspace.island.button:FindFirstChild("real")
+    end)
+    
+    if success and result then
+        local button = workspace.island.button.real
+        local clickDetector = button:FindFirstChild("ClickDetector")
+        return clickDetector
+    end
+    return nil
+end
+
+local function clickButton()
+    local clickDetector = findButton()
+    
+    if clickDetector then
+        pcall(function()
+            fireclickdetector(clickDetector)
+        end)
+        return true
+    else
+        return false
+    end
+end
+
+local function startButtonClicking()
+    if clickConnection then clickConnection:Disconnect() end
+    
+    clickConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if clicking then
+            local success = clickButton()
+            if not success then
+                ButtonStatusLabel.Text = "Button: ❌ Not Found"
+                ButtonStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            end
+        end
+    end)
+end
+
+local function stopButtonClicking()
+    clicking = false
+    if clickConnection then
+        clickConnection:Disconnect()
+        clickConnection = nil
+    end
+end
+
+-- Teleport Functions
+local function teleportToJesus()
+    local character = Player.Character
+    if not character then return false end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+    
+    -- Check if platform exists, create if not
+    local platform = workspace:FindFirstChild("jesusWalk")
+    if not platform then
+        platform = createJesusPlatform()
+    end
+    
+    -- Teleport to platform (slightly above to avoid falling through)
+    hrp.CFrame = CFrame.new(10000, 5, 0)
+    return true
+end
+
+local function startTeleporting()
+    if teleportConnection then teleportConnection:Disconnect() end
+    
+    teleportConnection = game:GetService("RunService").Heartbeat:Connect(function()
+        if teleporting then
+            -- Only teleport every 3 seconds
+            if not teleporting then return end
+            
+            local success = teleportToJesus()
+            if success then
+                TeleportStatusLabel.Text = "Auto Safezone"
+                TeleportStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                
+                -- Wait 3 seconds before next teleport
+                wait(3)
+                
+                if teleporting then
+                    TeleportStatusLabel.Text = "Auto Safezone"
+                    TeleportStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                end
+            else
+                TeleportStatusLabel.Text = "No Character"
+                TeleportStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            end
+        end
+    end)
+end
+
+local function stopTeleporting()
+    teleporting = false
+    if teleportConnection then
+        teleportConnection:Disconnect()
+        teleportConnection = nil
+    end
+end
+
+-- Handle character respawns
+Player.CharacterAdded:Connect(function()
+    if collecting then
+        wait(2)
+        if not coinConnection then
+            startCoinCollecting()
+        end
+    end
+    if clicking then
+        wait(2)
+        if not clickConnection then
+            startButtonClicking()
+        end
+    end
+    if teleporting then
+        wait(2)
+        teleportToJesus()
+    end
+end)
+
+-- Individual Toggle Functions
+local function toggleCoinCollect()
+    collecting = not collecting
+    
+    if collecting then
+        CoinStatusLabel.Text = "Auto Collect Coins"
+        CoinStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        CoinToggleButton.Text = "Enable"
+        CoinToggleButton.BackgroundColor3 = Color3.fromRGB(60, 200, 60)
+        startCoinCollecting()
+    else
+        CoinStatusLabel.Text = "Auto Collect Coins"
+        CoinStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        CoinToggleButton.Text = "Disable"
+        CoinToggleButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+        stopCoinCollecting()
+    end
+end
+
+local function toggleButtonClick()
+    clicking = not clicking
+    
+    if clicking then
+        ButtonStatusLabel.Text = "Auto Press Button"
+        ButtonStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        ButtonToggleButton.Text = "Enable"
+        ButtonToggleButton.BackgroundColor3 = Color3.fromRGB(90, 150, 255)
+        startButtonClicking()
+    else
+        ButtonStatusLabel.Text = "Auto Press Button"
+        ButtonStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        ButtonToggleButton.Text = "Disable"
+        ButtonToggleButton.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
+        stopButtonClicking()
+    end
+end
+
+local function toggleTeleport()
+    teleporting = not teleporting
+    
+    if teleporting then
+        TeleportStatusLabel.Text = "Jesus Teleporter"
+        TeleportStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        TeleportToggleButton.Text = "STOP TELEPORTING"
+        TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(200, 100, 255)
+        
         -- Create platform if it doesn't exist
         if not workspace:FindFirstChild("jesusWalk") then
             createJesusPlatform()
