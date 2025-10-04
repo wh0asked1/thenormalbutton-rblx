@@ -501,7 +501,7 @@ local function toggleTeleport()
     teleporting = not teleporting
     
     if teleporting then
-        TeleportStatusLabel.Text = "Jesus Teleporter"
+        TeleportStatusLabel.Text = "Auto Safezone"
         TeleportStatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
         TeleportToggleButton.Text = "STOP TELEPORTING"
         TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(200, 100, 255)
@@ -515,7 +515,7 @@ local function toggleTeleport()
         teleportToJesus()
         startTeleporting()
     else
-        TeleportStatusLabel.Text = "Jesus Teleporter"
+        TeleportStatusLabel.Text = "Auto Safezone"
         TeleportStatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
         TeleportToggleButton.Text = "START TELEPORTING"
         TeleportToggleButton.BackgroundColor3 = Color3.fromRGB(150, 60, 200)
